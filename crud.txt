@@ -1,0 +1,96 @@
+CRUD:
+-------
+	Data store: txt, doc, db -> RDBMS, NOSQL (MongoDB)
+	==========
+	project: Store data Name, Tech, Sub [true, false],
+	=======
+	REST API -> HTTP -> GET, POST, PATCH, PUT, DELETE
+	========
+		GET: http://localhost:9000/aliens
+		GET: http://localhost:9000/aliens/<id>
+		POST: http://localhost:9000/aliens
+		PATCH: http://localhost:9000/aliens/<id>
+		DELETE: http://localhost:9000/aliens/<id>
+
+	Node:
+	npm i express mongodb mongoose
+	npm i nodemon --save-dev (changes only dev in code auto reflect in node server)
+
+
+MongoDB:
+---------
+
+1)Installation path:
+--------------------------------------
+C:\Program Files\MongoDB\Server\4.2\bin
+
+2) configuration:
+--------------------------------------
+ 2.1 commandline (mongod for server & mongo for client)
+ 2.2 file 
+
+	1) Start MongoDB without access control.
+	--------------------------------------
+	C:>mongod --auth --port 27012 --logpath C:\laragon\data\mongodb\log\mongod.log --dbpath C:\laragon\data\mongodb\db
+
+	2) Connect to the instance.
+	--------------------------------------
+	C:>mongo 
+
+	config through file .conf
+	C:>mongod --config "C:\laragon\mongod.conf"
+	
+	pbm: Access control is not enabled for the database
+	sol: in client end
+	
+	3) Create the user administrator.
+	--------------------------------------
+	>mongo 
+	>use admin
+	db.createUser(
+	  {
+		user: "admin",
+		pwd: passwordPrompt(),
+		roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+	  }
+	)
+
+	4) Re-start the MongoDB instance with access control:
+	----------------------------------------------------------------------------
+		(mongo client end)
+	>db.adminCommand( { shutdown: 1 } )
+
+	GET the connection string for localhost <MongoDB> from GUI studio 3T
+	mongodb://admin@localhost:27017/?serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256&3t.uriVersion=3&3t.connection.name=admin
+
+
+	5) Connect and authenticate as the user administrator:
+	----------------------------------------------------------------------------
+	mongo --port 27017  --authenticationDatabase "admin" -u "admin" -p
+
+	
+	6) Create additional users as needed for your deployment:
+	----------------------------------------------------------------------------
+	use test
+	db.createUser(
+	  {
+		user: "tester",
+		pwd:  passwordPrompt(),
+		roles: [ { role: "readWrite", db: "test" },
+				 { role: "read", db: "reporting" } ]
+	  }
+	)
+	
+	7) Connect to the instance and authenticate as myTester
+	----------------------------------------------------------------------------
+	mongo --port 27017 -u "tester" --authenticationDatabase "test" -p
+	
+	
+	8) Insert a document as "tester"
+	----------------------------------------------------------------------------
+	As tester, you have privileges to perform read and write operations in the test database 
+	(as well as perform read operations in the reporting database). 
+	Once authenticated as myTester, insert a document into a collection in test database. 
+	For example, you can perform the following insert operation in the test database:
+		db.foo.insert( { x: 1, y: 1 } )
+
